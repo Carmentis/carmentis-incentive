@@ -12,8 +12,7 @@
     "dependencies": {
         "@cmts-dev/carmentis-indexer-sdk": "^1.0.12",
         "@cmts-dev/carmentis-sdk-core": "^1.2.0",
-        "@iarna/toml": "^2.2.5",
-        "typeorm": "^0.3.30"
+        "@iarna/toml": "^2.2.5"
     },
     "devDependencies": {
         "@types/node": "^25.9.1",
