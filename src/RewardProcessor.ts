@@ -196,7 +196,10 @@ export class RewardProcessor {
             order: SortOrder.ASC,
         });
         const votingPowers = response.items;
-        let lastTs = 0;
+        let lastTs = new Date(this.config.startDate).getTime();
+        if(isNaN(lastTs)) {
+            throw new Error("invalid start date");
+        }
         let votingPower = 0;
         let dueInAtomics = 0;
 
@@ -213,10 +216,15 @@ export class RewardProcessor {
     }
 
     getDueAmountForPeriod(from: number, to: number, votingPower: number) {
-        const amount = (to - from) * REWARD_RATE_PER_MS * votingPower;
         const fromAsStr = new Date(from).toISOString();
         const toAsStr = new Date(to).toISOString();
-        Logger.info(`due from ${fromAsStr} to ${toAsStr}: ${amount} atomics`);
+        const delta = to - from;
+        if (delta < 0) {
+            Logger.warn(`inconsistent period from ${fromAsStr} to ${toAsStr}: due amount is 0`);
+            return 0;
+        }
+        const amount = delta * REWARD_RATE_PER_MS * votingPower;
+        Logger.info(`due amount from ${fromAsStr} to ${toAsStr}: ${amount} atomics`);
         return amount;
     }
 

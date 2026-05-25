@@ -11,6 +11,7 @@ const config: Config = {
     indexerUrl: parsedConfig.network.indexer_url || "",
     privateKey: parsedConfig.payment.private_key || "",
     publicReference: parsedConfig.payment.public_reference || "",
+    startDate: parsedConfig.payment.start_date || "",
 };
 
 const processor = new RewardProcessor(config);

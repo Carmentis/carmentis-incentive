@@ -1,6 +1,7 @@
 [payment]
 private_key = "SIG:SECP256K1:SK{f86ce9df7bcdf880a649fe2e177052fbe289226630d2dfbbac80f068ada6c5a9}"
 public_reference = "reward from the Carmentis incentive program"
+start_date = "2026-05-25T00:00:00.000Z"
 
 [network]
 node_url = "http://localhost:26657"

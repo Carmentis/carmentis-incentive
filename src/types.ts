@@ -3,4 +3,5 @@ export interface Config {
     indexerUrl: string,
     privateKey: string,
     publicReference: string,
+    startDate: string,
 }
