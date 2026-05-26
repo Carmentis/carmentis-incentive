@@ -1,6 +1,6 @@
 {
     "name": "carmentis-incentive",
-    "version": "0.0.1",
+    "version": "0.0.2",
     "description": "Carmentis Incentive Program",
     "author": "Carmentis SAS",
     "private": true,
@@ -10,8 +10,7 @@
         "start": "node dist/main.js"
     },
     "dependencies": {
-        "@cmts-dev/carmentis-indexer-sdk": "^1.0.12",
-        "@cmts-dev/carmentis-sdk-core": "^1.2.0",
+        "@cmts-dev/carmentis-sdk-core": "^1.2.4",
         "@iarna/toml": "^2.2.5"
     },
     "devDependencies": {

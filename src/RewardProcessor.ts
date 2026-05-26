@@ -1,14 +1,7 @@
 import { Config } from "./types";
-import {
-    Indexer,
-    SortOrder,
-    AccountHistorySort,
-    BlockSort,
-    VotingPowerSort,
-    Block,
-    ValidatorNode,
-} from "@cmts-dev/carmentis-indexer-sdk";
 import * as Logger from "./Logger";
+import * as httpClient from "./indexer-sdk/http-client/http-client";
+import * as indexer from "./indexer-sdk/indexer-api";
 import {
     BK_SENT_PAYMENT,
     ProviderFactory,
@@ -21,13 +14,14 @@ import {
     Utils,
     CMTSToken,
 } from "@cmts-dev/carmentis-sdk-core";
+import { BlockDto, ValidatorNodeDto } from "./indexer-sdk/model";
 
 const REWARD_RATE_PER_YEAR = 0.10;
 const MS_IN_YEAR = 365 * 24 * 60 * 60 * 1000;
 const REWARD_RATE_PER_MS = REWARD_RATE_PER_YEAR / MS_IN_YEAR;
 
 type ExtendedNode = {
-    dto: ValidatorNode;
+    dto: ValidatorNodeDto;
     accountId: string;
 }
 type Payer = {
@@ -39,15 +33,14 @@ type Payer = {
 
 export class RewardProcessor {
     private readonly config: Config;
-    private readonly indexer: Indexer;
     private readonly provider: Provider;
     private now: number;
     private payer: Payer;
 
     constructor(config: Config) {
         this.config = config;
-        this.indexer = new Indexer(config.indexerUrl);
         this.provider = ProviderFactory.createInMemoryProviderWithExternalProvider(this.config.nodeUrl);
+        httpClient.setApiBaseUrl(config.indexerUrl);
     }
 
     async tick() {
@@ -61,8 +54,8 @@ export class RewardProcessor {
         } else {
             Logger.info("selected node: " + node.dto.virtualBlockchainId);
             await this.payNode(node);
-            Logger.info("process completed");
         }
+        Logger.info("process completed");
     }
 
     async getNextNode() {
@@ -114,16 +107,16 @@ export class RewardProcessor {
     }
 
     async getNodeList() {
-        const nodeList = await this.indexer.getValidatorNodes();
+        const nodeList = await indexer.appControllerGetValidatorNodes();
         const res: ExtendedNode[] = [];
-        for (const node of nodeList.items) {
-            const organization = await this.indexer.getOrganizations({
+        for (const node of nodeList.data.items) {
+            const organizations = await indexer.appControllerGetOrganizations({
                 vb_id: node.organizationId,
             });
-            if (organization.items.length === 1) {
+            if (organizations.data.items.length === 1) {
                 const extendedNode: ExtendedNode = {
                     dto: node,
-                    accountId: organization.items[0].accountId
+                    accountId: organizations.data.items[0].accountId
                 };
                 res.push(extendedNode);
             }
@@ -132,17 +125,17 @@ export class RewardProcessor {
     }
 
     async getLastPaidAccountId() {
-        const paymentList = await this.indexer.getAccountHistory({
+        const paymentList = await indexer.appControllerGetAccountHistory({
             account_id: this.payer.accountId,
             type: BK_SENT_PAYMENT,
-            sort: AccountHistorySort.HEIGHT,
-            order: SortOrder.DESC,
+            sort: "height",
+            order: "DESC",
             limit: 1,
         });
-        if (paymentList.items.length == 0) {
+        if (paymentList.data.items.length == 0) {
             return null;
         }
-        return paymentList.items[0].linkedAccountId;
+        return paymentList.data.items[0].linkedAccountId;
     }
 
     async payNode(node: ExtendedNode) {
@@ -190,12 +183,12 @@ export class RewardProcessor {
     }
 
     async getDueAmount(node: ExtendedNode) {
-        const response = await this.indexer.getVotingPower({
+        const response = await indexer.appControllerGetVotingPowers({
             node_id: node.dto.virtualBlockchainId,
-            sort: VotingPowerSort.HEIGHT,
-            order: SortOrder.ASC,
+            sort: "height",
+            order: "ASC",
         });
-        const votingPowers = response.items;
+        const votingPowers = response.data.items;
         let lastTs = new Date(this.config.startDate).getTime();
         if(isNaN(lastTs)) {
             throw new Error("invalid start date");
@@ -247,44 +240,46 @@ export class RewardProcessor {
         let paidInAtomics = 0;
 
         while (hasMore) {
-            const response = await this.indexer.getAccountHistory({
+            const response = await indexer.appControllerGetAccountHistory({
                 account_id: this.payer.accountId,
                 linked_account_id: node.accountId,
                 type: BK_SENT_PAYMENT,
                 height_gte: minHeight,
-                sort: AccountHistorySort.HEIGHT,
-                order: SortOrder.ASC,
+                sort: "height",
+                order: "ASC",
             });
-            for (const item of response.items) {
+            const items = response.data.items;
+            for (const item of items) {
                 paidInAtomics += item.amount;
             }
-            if (response.items.length > 0) {
-                minHeight = response.items[response.items.length - 1].height + 1;
+            if (items.length > 0) {
+                minHeight = items[items.length - 1].height + 1;
             }
-            hasMore = response.hasMore;
+            hasMore = response.data.hasMore;
         }
         return paidInAtomics;
     }
 
     async getBlocksFromLastHour() {
         const oneHourAgo = this.now - 3600000;
-        const blockList: Block[] = [];
+        const blockList: BlockDto[] = [];
         let minHeight = 0;
         let hasMore = true;
 
         while (hasMore) {
-            const response = await this.indexer.getBlocks({
+            const response = await indexer.appControllerGetBlocks({
                 height_gte: minHeight,
                 timestamp_gte: oneHourAgo,
                 timestamp_lte: this.now,
-                sort: BlockSort.HEIGHT,
-                order: SortOrder.ASC,
+                sort: "height",
+                order: "ASC",
             });
-            blockList.push(...response.items);
-            if (response.items.length > 0) {
-                minHeight = response.items[response.items.length - 1].height + 1;
+            const items = response.data.items;
+            blockList.push(...items);
+            if (items.length > 0) {
+                minHeight = items[items.length - 1].height + 1;
             }
-            hasMore = response.hasMore;
+            hasMore = response.data.hasMore;
         }
         return blockList;
     }
