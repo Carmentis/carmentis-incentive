@@ -10,7 +10,8 @@
         "start": "node dist/main.js"
     },
     "dependencies": {
-        "@cmts-dev/carmentis-sdk-core": "^1.2.4",
+        "@cmts-dev/carmentis-indexer-sdk": "^1.0.12",
+        "@cmts-dev/carmentis-sdk-core": "^1.2.9",
         "@iarna/toml": "^2.2.5"
     },
     "devDependencies": {
