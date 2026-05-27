@@ -1,21 +1,22 @@
 {
     "name": "carmentis-incentive",
-    "version": "0.0.2",
+    "version": "0.0.3",
     "description": "Carmentis Incentive Program",
     "author": "Carmentis SAS",
     "private": true,
     "license": "LGPL-3.0-or-later",
     "scripts": {
         "build": "tsc",
+        "build:sdk": "node ./scripts/sdk-gen/index.js",
         "start": "node dist/main.js"
     },
     "dependencies": {
-        "@cmts-dev/carmentis-indexer-sdk": "^1.0.12",
         "@cmts-dev/carmentis-sdk-core": "^1.2.9",
         "@iarna/toml": "^2.2.5"
     },
     "devDependencies": {
         "@types/node": "^25.9.1",
+        "orval": "^8.13.0",
         "typescript": "^5.9.3"
     }
 }

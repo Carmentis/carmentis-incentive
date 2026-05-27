@@ -1,0 +1,1633 @@
+{
+  "openapi": "3.0.0",
+  "paths": {
+    "/api/v1": {
+      "get": {
+        "operationId": "AppController_getRoot",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "App"
+        ]
+      }
+    },
+    "/api/v1/chain": {
+      "get": {
+        "operationId": "AppController_getChain",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ChainResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "App"
+        ]
+      }
+    },
+    "/api/v1/gas-price": {
+      "get": {
+        "operationId": "AppController_getGasPrice",
+        "parameters": [
+          {
+            "name": "height_gte",
+            "required": false,
+            "in": "query",
+            "description": "Minimum block height (inclusive)",
+            "schema": {
+              "example": 100,
+              "type": "number"
+            }
+          },
+          {
+            "name": "height_lte",
+            "required": false,
+            "in": "query",
+            "description": "Maximum block height (inclusive)",
+            "schema": {
+              "example": 200,
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GasPriceResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "App"
+        ]
+      }
+    },
+    "/api/v1/blocks": {
+      "get": {
+        "operationId": "AppController_getBlocks",
+        "parameters": [
+          {
+            "name": "order",
+            "required": false,
+            "in": "query",
+            "description": "Sort order",
+            "schema": {
+              "default": "ASC",
+              "type": "string",
+              "enum": [
+                "ASC",
+                "DESC"
+              ]
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "description": "Limit number of results",
+            "schema": {
+              "example": 10,
+              "type": "number"
+            }
+          },
+          {
+            "name": "sort",
+            "required": false,
+            "in": "query",
+            "description": "Field on which the sort is applied",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "height"
+              ]
+            }
+          },
+          {
+            "name": "height",
+            "required": false,
+            "in": "query",
+            "description": "Exact block height. Cannot be used in conjunction with height_gte or height_lte.",
+            "schema": {
+              "example": 123,
+              "type": "number"
+            }
+          },
+          {
+            "name": "height_gte",
+            "required": false,
+            "in": "query",
+            "description": "Minimum block height (inclusive)",
+            "schema": {
+              "example": 100,
+              "type": "number"
+            }
+          },
+          {
+            "name": "height_lte",
+            "required": false,
+            "in": "query",
+            "description": "Maximum block height (inclusive)",
+            "schema": {
+              "example": 200,
+              "type": "number"
+            }
+          },
+          {
+            "name": "timestamp_gte",
+            "required": false,
+            "in": "query",
+            "description": "Minimum timestamp in seconds (inclusive)",
+            "schema": {
+              "example": 1780272000,
+              "type": "number"
+            }
+          },
+          {
+            "name": "timestamp_lte",
+            "required": false,
+            "in": "query",
+            "description": "Maximum timestamp in seconds (inclusive)",
+            "schema": {
+              "example": 1782777600,
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BlockListResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "App"
+        ]
+      }
+    },
+    "/api/v1/microblocks": {
+      "get": {
+        "operationId": "AppController_getMicroblocks",
+        "parameters": [
+          {
+            "name": "order",
+            "required": false,
+            "in": "query",
+            "description": "Sort order",
+            "schema": {
+              "default": "ASC",
+              "type": "string",
+              "enum": [
+                "ASC",
+                "DESC"
+              ]
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "description": "Limit number of results",
+            "schema": {
+              "example": 10,
+              "type": "number"
+            }
+          },
+          {
+            "name": "sort",
+            "required": false,
+            "in": "query",
+            "description": "Field on which the sort is applied",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "blockHeight"
+              ]
+            }
+          },
+          {
+            "name": "hash",
+            "required": false,
+            "in": "query",
+            "description": "Block hash",
+            "schema": {
+              "example": "511d98d94eac50e6bd5df8dad285c90c309c55a57bdf9db8c57d0ec931c7c57a",
+              "type": "string"
+            }
+          },
+          {
+            "name": "block_height",
+            "required": false,
+            "in": "query",
+            "description": "Block height",
+            "schema": {
+              "example": 100,
+              "type": "number"
+            }
+          },
+          {
+            "name": "vb_id",
+            "required": false,
+            "in": "query",
+            "description": "Virtual blockchain ID",
+            "schema": {
+              "example": "c4807cb71556c183ad79880be6c2732ae8b82089bbb27845f4452f27222900bc",
+              "type": "string"
+            }
+          },
+          {
+            "name": "include_content",
+            "required": false,
+            "in": "query",
+            "description": "Flag to include the microblock content in the response",
+            "schema": {
+              "type": "boolean"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MicroblockListResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "App"
+        ]
+      }
+    },
+    "/api/v1/accounts": {
+      "get": {
+        "operationId": "AppController_getAccounts",
+        "parameters": [
+          {
+            "name": "order",
+            "required": false,
+            "in": "query",
+            "description": "Sort order",
+            "schema": {
+              "default": "ASC",
+              "type": "string",
+              "enum": [
+                "ASC",
+                "DESC"
+              ]
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "description": "Limit number of results",
+            "schema": {
+              "example": 10,
+              "type": "number"
+            }
+          },
+          {
+            "name": "id",
+            "required": false,
+            "in": "query",
+            "description": "Account ID",
+            "schema": {
+              "example": "511d98d94eac50e6bd5df8dad285c90c309c55a57bdf9db8c57d0ec931c7c57a",
+              "type": "string"
+            }
+          },
+          {
+            "name": "balance_gte",
+            "required": false,
+            "in": "query",
+            "description": "Minimum balance in CMTS (inclusive)",
+            "schema": {
+              "example": 1000,
+              "type": "number"
+            }
+          },
+          {
+            "name": "balance_lte",
+            "required": false,
+            "in": "query",
+            "description": "Maximum balance in CMTS (inclusive)",
+            "schema": {
+              "example": 2000,
+              "type": "number"
+            }
+          },
+          {
+            "name": "with_escrow",
+            "required": false,
+            "in": "query",
+            "description": "Filter accounts with at least one escrow lock",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "with_vesting",
+            "required": false,
+            "in": "query",
+            "description": "Filter accounts with at least one vesting lock",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "with_staking",
+            "required": false,
+            "in": "query",
+            "description": "Filter accounts with at least one staking lock",
+            "schema": {
+              "type": "boolean"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AccountListResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "App"
+        ]
+      }
+    },
+    "/api/v1/account-history": {
+      "get": {
+        "operationId": "AppController_getAccountHistory",
+        "parameters": [
+          {
+            "name": "order",
+            "required": false,
+            "in": "query",
+            "description": "Sort order",
+            "schema": {
+              "default": "ASC",
+              "type": "string",
+              "enum": [
+                "ASC",
+                "DESC"
+              ]
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "description": "Limit number of results",
+            "schema": {
+              "example": 10,
+              "type": "number"
+            }
+          },
+          {
+            "name": "sort",
+            "required": false,
+            "in": "query",
+            "description": "Field on which the sort is applied",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "height"
+              ]
+            }
+          },
+          {
+            "name": "account_id",
+            "required": false,
+            "in": "query",
+            "description": "Account ID",
+            "schema": {
+              "example": "511d98d94eac50e6bd5df8dad285c90c309c55a57bdf9db8c57d0ec931c7c57a",
+              "type": "string"
+            }
+          },
+          {
+            "name": "linked_account_id",
+            "required": false,
+            "in": "query",
+            "description": "Linked account ID",
+            "schema": {
+              "example": "c4807cb71556c183ad79880be6c2732ae8b82089bbb27845f4452f27222900bc",
+              "type": "string"
+            }
+          },
+          {
+            "name": "type",
+            "required": false,
+            "in": "query",
+            "description": "Operation type",
+            "schema": {
+              "example": 1,
+              "type": "number"
+            }
+          },
+          {
+            "name": "height",
+            "required": false,
+            "in": "query",
+            "description": "Exact history height. Cannot be used in conjunction with height_gte or height_lte.",
+            "schema": {
+              "example": 23,
+              "type": "number"
+            }
+          },
+          {
+            "name": "height_gte",
+            "required": false,
+            "in": "query",
+            "description": "Minimum history height (inclusive)",
+            "schema": {
+              "example": 10,
+              "type": "number"
+            }
+          },
+          {
+            "name": "height_lte",
+            "required": false,
+            "in": "query",
+            "description": "Maximum history height (inclusive)",
+            "schema": {
+              "example": 20,
+              "type": "number"
+            }
+          },
+          {
+            "name": "timestamp_gte",
+            "required": false,
+            "in": "query",
+            "description": "Minimum timestamp in seconds (inclusive)",
+            "schema": {
+              "example": 1780272000,
+              "type": "number"
+            }
+          },
+          {
+            "name": "timestamp_lte",
+            "required": false,
+            "in": "query",
+            "description": "Maximum timestamp in seconds (inclusive)",
+            "schema": {
+              "example": 1782777600,
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AccountHistoryListResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "App"
+        ]
+      }
+    },
+    "/api/v1/organizations": {
+      "get": {
+        "operationId": "AppController_getOrganizations",
+        "parameters": [
+          {
+            "name": "order",
+            "required": false,
+            "in": "query",
+            "description": "Sort order",
+            "schema": {
+              "default": "ASC",
+              "type": "string",
+              "enum": [
+                "ASC",
+                "DESC"
+              ]
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "description": "Limit number of results",
+            "schema": {
+              "example": 10,
+              "type": "number"
+            }
+          },
+          {
+            "name": "vb_id",
+            "required": false,
+            "in": "query",
+            "description": "Virtual blockchain ID",
+            "schema": {
+              "example": "511d98d94eac50e6bd5df8dad285c90c309c55a57bdf9db8c57d0ec931c7c57a",
+              "type": "string"
+            }
+          },
+          {
+            "name": "account_id",
+            "required": false,
+            "in": "query",
+            "description": "Account ID",
+            "schema": {
+              "example": "c4807cb71556c183ad79880be6c2732ae8b82089bbb27845f4452f27222900bc",
+              "type": "string"
+            }
+          },
+          {
+            "name": "name",
+            "required": false,
+            "in": "query",
+            "description": "Organization name",
+            "schema": {
+              "example": "Carmentis SAS",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OrganizationListResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "App"
+        ]
+      }
+    },
+    "/api/v1/applications": {
+      "get": {
+        "operationId": "AppController_getApplications",
+        "parameters": [
+          {
+            "name": "order",
+            "required": false,
+            "in": "query",
+            "description": "Sort order",
+            "schema": {
+              "default": "ASC",
+              "type": "string",
+              "enum": [
+                "ASC",
+                "DESC"
+              ]
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "description": "Limit number of results",
+            "schema": {
+              "example": 10,
+              "type": "number"
+            }
+          },
+          {
+            "name": "vb_id",
+            "required": false,
+            "in": "query",
+            "description": "Virtual blockchain ID",
+            "schema": {
+              "example": "511d98d94eac50e6bd5df8dad285c90c309c55a57bdf9db8c57d0ec931c7c57a",
+              "type": "string"
+            }
+          },
+          {
+            "name": "organization_id",
+            "required": false,
+            "in": "query",
+            "description": "Organization virtual blockchain ID",
+            "schema": {
+              "example": "c4807cb71556c183ad79880be6c2732ae8b82089bbb27845f4452f27222900bc",
+              "type": "string"
+            }
+          },
+          {
+            "name": "name",
+            "required": false,
+            "in": "query",
+            "description": "Application name",
+            "schema": {
+              "example": "FileSign",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApplicationListResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "App"
+        ]
+      }
+    },
+    "/api/v1/validator-nodes": {
+      "get": {
+        "operationId": "AppController_getValidatorNodes",
+        "parameters": [
+          {
+            "name": "order",
+            "required": false,
+            "in": "query",
+            "description": "Sort order",
+            "schema": {
+              "default": "ASC",
+              "type": "string",
+              "enum": [
+                "ASC",
+                "DESC"
+              ]
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "description": "Limit number of results",
+            "schema": {
+              "example": 10,
+              "type": "number"
+            }
+          },
+          {
+            "name": "vb_id",
+            "required": false,
+            "in": "query",
+            "description": "Virtual blockchain ID",
+            "schema": {
+              "example": "511d98d94eac50e6bd5df8dad285c90c309c55a57bdf9db8c57d0ec931c7c57a",
+              "type": "string"
+            }
+          },
+          {
+            "name": "organization_id",
+            "required": false,
+            "in": "query",
+            "description": "Organization virtual blockchain ID",
+            "schema": {
+              "example": "c4807cb71556c183ad79880be6c2732ae8b82089bbb27845f4452f27222900bc",
+              "type": "string"
+            }
+          },
+          {
+            "name": "public_key",
+            "required": false,
+            "in": "query",
+            "description": "Comet public key",
+            "schema": {
+              "example": "Ia1q/tjhdo3tkO+nkFMa77v/4YFWYB3duC0n0fZ+S9M=",
+              "type": "string"
+            }
+          },
+          {
+            "name": "address",
+            "required": false,
+            "in": "query",
+            "description": "Node address",
+            "schema": {
+              "example": "C5F1A9EEA5451BC797DE6CAA8C17765B824E7F85",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidatorNodeListResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "App"
+        ]
+      }
+    },
+    "/api/v1/virtual-blockchains": {
+      "get": {
+        "operationId": "AppController_getVirtualBlockchains",
+        "parameters": [
+          {
+            "name": "order",
+            "required": false,
+            "in": "query",
+            "description": "Sort order",
+            "schema": {
+              "default": "ASC",
+              "type": "string",
+              "enum": [
+                "ASC",
+                "DESC"
+              ]
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "description": "Limit number of results",
+            "schema": {
+              "example": 10,
+              "type": "number"
+            }
+          },
+          {
+            "name": "vb_id",
+            "required": false,
+            "in": "query",
+            "description": "Virtual blockchain ID",
+            "schema": {
+              "example": "511d98d94eac50e6bd5df8dad285c90c309c55a57bdf9db8c57d0ec931c7c57a",
+              "type": "string"
+            }
+          },
+          {
+            "name": "type",
+            "required": false,
+            "in": "query",
+            "description": "Type",
+            "schema": {
+              "example": 1,
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VirtualBlockchainListResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "App"
+        ]
+      }
+    },
+    "/api/v1/voting-powers": {
+      "get": {
+        "operationId": "AppController_getVotingPowers",
+        "parameters": [
+          {
+            "name": "order",
+            "required": false,
+            "in": "query",
+            "description": "Sort order",
+            "schema": {
+              "default": "ASC",
+              "type": "string",
+              "enum": [
+                "ASC",
+                "DESC"
+              ]
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "description": "Limit number of results",
+            "schema": {
+              "example": 10,
+              "type": "number"
+            }
+          },
+          {
+            "name": "sort",
+            "required": false,
+            "in": "query",
+            "description": "Field on which the sort is applied",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "height"
+              ]
+            }
+          },
+          {
+            "name": "node_id",
+            "required": false,
+            "in": "query",
+            "description": "Node virtual blockchain ID",
+            "schema": {
+              "example": "511d98d94eac50e6bd5df8dad285c90c309c55a57bdf9db8c57d0ec931c7c57a",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VotingPowerListResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "App"
+        ]
+      }
+    }
+  },
+  "info": {
+    "title": "Carmentis indexer API",
+    "description": "Documentation for the Carmentis indexer API.",
+    "version": "1.0",
+    "contact": {}
+  },
+  "tags": [],
+  "servers": [],
+  "components": {
+    "securitySchemes": {
+      "api-key": {
+        "type": "apiKey",
+        "in": "header",
+        "name": "Authorization"
+      }
+    },
+    "schemas": {
+      "ObjectCountDto": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "number"
+          },
+          "count": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "type",
+          "count"
+        ]
+      },
+      "ChainResponseDto": {
+        "type": "object",
+        "properties": {
+          "version": {
+            "type": "string"
+          },
+          "network": {
+            "type": "string"
+          },
+          "earliestBlockHash": {
+            "type": "string"
+          },
+          "height": {
+            "type": "number"
+          },
+          "objectCounts": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ObjectCountDto"
+            }
+          }
+        },
+        "required": [
+          "version",
+          "network",
+          "earliestBlockHash",
+          "height",
+          "objectCounts"
+        ]
+      },
+      "GasPriceResponseDto": {
+        "type": "object",
+        "properties": {
+          "min": {
+            "type": "number"
+          },
+          "max": {
+            "type": "number"
+          },
+          "average": {
+            "type": "number"
+          },
+          "microblocks": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "min",
+          "max",
+          "average",
+          "microblocks"
+        ]
+      },
+      "BlockSignatureDto": {
+        "type": "object",
+        "properties": {
+          "height": {
+            "type": "number"
+          },
+          "blockIdFlag": {
+            "type": "number"
+          },
+          "validatorAddress": {
+            "type": "string"
+          },
+          "milliseconds": {
+            "type": "number"
+          },
+          "nanoseconds": {
+            "type": "number"
+          },
+          "signature": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "height",
+          "blockIdFlag",
+          "validatorAddress",
+          "milliseconds",
+          "nanoseconds",
+          "signature"
+        ]
+      },
+      "BlockDto": {
+        "type": "object",
+        "properties": {
+          "height": {
+            "type": "number"
+          },
+          "hash": {
+            "type": "string"
+          },
+          "blockVersion": {
+            "type": "number"
+          },
+          "appVersion": {
+            "type": "number"
+          },
+          "chainId": {
+            "type": "string"
+          },
+          "milliseconds": {
+            "type": "number"
+          },
+          "nanoseconds": {
+            "type": "number"
+          },
+          "partsTotal": {
+            "type": "number"
+          },
+          "partsHash": {
+            "type": "string"
+          },
+          "lastCommitHash": {
+            "type": "string"
+          },
+          "dataHash": {
+            "type": "string"
+          },
+          "validatorsHash": {
+            "type": "string"
+          },
+          "nextValidatorsHash": {
+            "type": "string"
+          },
+          "consensusHash": {
+            "type": "string"
+          },
+          "appHash": {
+            "type": "string"
+          },
+          "lastResultsHash": {
+            "type": "string"
+          },
+          "evidenceHash": {
+            "type": "string"
+          },
+          "proposerAddress": {
+            "type": "string"
+          },
+          "signatures": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/BlockSignatureDto"
+            }
+          }
+        },
+        "required": [
+          "height",
+          "hash",
+          "blockVersion",
+          "appVersion",
+          "chainId",
+          "milliseconds",
+          "nanoseconds",
+          "partsTotal",
+          "partsHash",
+          "lastCommitHash",
+          "dataHash",
+          "validatorsHash",
+          "nextValidatorsHash",
+          "consensusHash",
+          "appHash",
+          "lastResultsHash",
+          "evidenceHash",
+          "proposerAddress",
+          "signatures"
+        ]
+      },
+      "BlockListResponseDto": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/BlockDto"
+            }
+          },
+          "hasMore": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "items",
+          "hasMore"
+        ]
+      },
+      "MicroblockDto": {
+        "type": "object",
+        "properties": {
+          "hash": {
+            "type": "string"
+          },
+          "blockHeight": {
+            "type": "number"
+          },
+          "virtualBlockchainId": {
+            "type": "string"
+          },
+          "type": {
+            "type": "number"
+          },
+          "height": {
+            "type": "number"
+          },
+          "size": {
+            "type": "number"
+          },
+          "gas": {
+            "type": "number"
+          },
+          "gasPrice": {
+            "type": "number",
+            "description": "Expressed in atomics"
+          },
+          "content": {
+            "type": "string",
+            "description": "Returned only if include_content=true"
+          }
+        },
+        "required": [
+          "hash",
+          "blockHeight",
+          "virtualBlockchainId",
+          "type",
+          "height",
+          "size",
+          "gas",
+          "gasPrice"
+        ]
+      },
+      "MicroblockListResponseDto": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/MicroblockDto"
+            }
+          },
+          "hasMore": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "items",
+          "hasMore"
+        ]
+      },
+      "EscrowLockDto": {
+        "type": "object",
+        "properties": {
+          "amount": {
+            "type": "number"
+          },
+          "escrowIdentifier": {
+            "type": "string"
+          },
+          "fundEmitterAccountId": {
+            "type": "string"
+          },
+          "transferAuthorizerAccountId": {
+            "type": "string"
+          },
+          "startTimestamp": {
+            "type": "number"
+          },
+          "durationDays": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "amount",
+          "escrowIdentifier",
+          "fundEmitterAccountId",
+          "transferAuthorizerAccountId",
+          "startTimestamp",
+          "durationDays"
+        ]
+      },
+      "VestingLockDto": {
+        "type": "object",
+        "properties": {
+          "amount": {
+            "type": "number"
+          },
+          "initialVestedAmountInAtomics": {
+            "type": "number"
+          },
+          "cliffStartTimestamp": {
+            "type": "number"
+          },
+          "cliffDurationDays": {
+            "type": "number"
+          },
+          "vestingDurationDays": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "amount",
+          "initialVestedAmountInAtomics",
+          "cliffStartTimestamp",
+          "cliffDurationDays",
+          "vestingDurationDays"
+        ]
+      },
+      "StakingLockDto": {
+        "type": "object",
+        "properties": {
+          "amount": {
+            "type": "number"
+          },
+          "validatorNodeId": {
+            "type": "string"
+          },
+          "plannedUnlockAmountInAtomics": {
+            "type": "number"
+          },
+          "plannedUnlockTimestamp": {
+            "type": "number"
+          },
+          "slashed": {
+            "type": "boolean"
+          },
+          "plannedSlashingAmountInAtomics": {
+            "type": "number"
+          },
+          "plannedSlashingTimestamp": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "amount",
+          "validatorNodeId",
+          "plannedUnlockAmountInAtomics",
+          "plannedUnlockTimestamp",
+          "slashed",
+          "plannedSlashingAmountInAtomics",
+          "plannedSlashingTimestamp"
+        ]
+      },
+      "AccountDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "height": {
+            "type": "number"
+          },
+          "balance": {
+            "type": "number"
+          },
+          "escrowLocks": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/EscrowLockDto"
+            }
+          },
+          "vestingLocks": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/VestingLockDto"
+            }
+          },
+          "stakingLocks": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/StakingLockDto"
+            }
+          }
+        },
+        "required": [
+          "id",
+          "height",
+          "balance",
+          "escrowLocks",
+          "vestingLocks",
+          "stakingLocks"
+        ]
+      },
+      "AccountListResponseDto": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AccountDto"
+            }
+          },
+          "hasMore": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "items",
+          "hasMore"
+        ]
+      },
+      "AccountHistoryDto": {
+        "type": "object",
+        "properties": {
+          "accountId": {
+            "type": "string"
+          },
+          "height": {
+            "type": "number"
+          },
+          "type": {
+            "type": "number"
+          },
+          "timestamp": {
+            "type": "number"
+          },
+          "linkedAccountId": {
+            "type": "string"
+          },
+          "amount": {
+            "type": "number"
+          },
+          "chainReference": {
+            "type": "string"
+          },
+          "publicReference": {
+            "type": "string"
+          },
+          "privateReference": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "accountId",
+          "height",
+          "type",
+          "timestamp",
+          "linkedAccountId",
+          "amount",
+          "chainReference",
+          "publicReference",
+          "privateReference"
+        ]
+      },
+      "AccountHistoryListResponseDto": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AccountHistoryDto"
+            }
+          },
+          "hasMore": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "items",
+          "hasMore"
+        ]
+      },
+      "OrganizationDto": {
+        "type": "object",
+        "properties": {
+          "virtualBlockchainId": {
+            "type": "string"
+          },
+          "accountId": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "city": {
+            "type": "string"
+          },
+          "countryCode": {
+            "type": "string"
+          },
+          "website": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "virtualBlockchainId",
+          "accountId",
+          "name",
+          "city",
+          "countryCode",
+          "website"
+        ]
+      },
+      "OrganizationListResponseDto": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/OrganizationDto"
+            }
+          },
+          "hasMore": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "items",
+          "hasMore"
+        ]
+      },
+      "ApplicationDto": {
+        "type": "object",
+        "properties": {
+          "virtualBlockchainId": {
+            "type": "string"
+          },
+          "organizationId": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "logoUrl": {
+            "type": "string"
+          },
+          "homepageUrl": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "virtualBlockchainId",
+          "organizationId",
+          "name",
+          "logoUrl",
+          "homepageUrl",
+          "description"
+        ]
+      },
+      "ApplicationListResponseDto": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ApplicationDto"
+            }
+          },
+          "hasMore": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "items",
+          "hasMore"
+        ]
+      },
+      "ValidatorNodeDto": {
+        "type": "object",
+        "properties": {
+          "virtualBlockchainId": {
+            "type": "string"
+          },
+          "organizationId": {
+            "type": "string"
+          },
+          "cometPublicKeyType": {
+            "type": "string"
+          },
+          "cometPublicKey": {
+            "type": "string"
+          },
+          "address": {
+            "type": "string"
+          },
+          "rpcEndpoint": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "virtualBlockchainId",
+          "organizationId",
+          "cometPublicKeyType",
+          "cometPublicKey",
+          "address",
+          "rpcEndpoint"
+        ]
+      },
+      "ValidatorNodeListResponseDto": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ValidatorNodeDto"
+            }
+          },
+          "hasMore": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "items",
+          "hasMore"
+        ]
+      },
+      "VirtualBlockchainDto": {
+        "type": "object",
+        "properties": {
+          "virtualBlockchainId": {
+            "type": "string"
+          },
+          "height": {
+            "type": "number"
+          },
+          "type": {
+            "type": "number"
+          },
+          "creationTimestamp": {
+            "type": "number"
+          },
+          "modificationTimestamp": {
+            "type": "number"
+          },
+          "lastMicroblockHash": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "virtualBlockchainId",
+          "height",
+          "type",
+          "creationTimestamp",
+          "modificationTimestamp",
+          "lastMicroblockHash"
+        ]
+      },
+      "VirtualBlockchainListResponseDto": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/VirtualBlockchainDto"
+            }
+          },
+          "hasMore": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "items",
+          "hasMore"
+        ]
+      },
+      "VotingPowerDto": {
+        "type": "object",
+        "properties": {
+          "nodeId": {
+            "type": "string"
+          },
+          "height": {
+            "type": "number"
+          },
+          "timestamp": {
+            "type": "number"
+          },
+          "votingPower": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "nodeId",
+          "height",
+          "timestamp",
+          "votingPower"
+        ]
+      },
+      "VotingPowerListResponseDto": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/VotingPowerDto"
+            }
+          },
+          "hasMore": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "items",
+          "hasMore"
+        ]
+      }
+    }
+  }
+}
