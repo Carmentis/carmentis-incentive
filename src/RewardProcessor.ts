@@ -49,20 +49,13 @@ export class RewardProcessor {
         if (this.payer === undefined) {
             throw new Error("payer not initialized");
         }
+        Logger.info("starting new round");
         this.now = Date.now();
-        const node = await this.getNextNode();
-        if (node === null) {
-            Logger.error("no eligible node");
-        } else {
-            Logger.info("selected node: " + node.dto.virtualBlockchainId);
-            await this.payNode(node);
-        }
-        Logger.info("process completed");
+        await this.payNextNode();
+        Logger.info("end of round");
     }
 
-    async getNextNode() {
-        Logger.info("retrieving the next eligible node");
-
+    async payNextNode() {
         // get the current list of validator nodes
         const nodeList = await this.getNodeList();
         if (nodeList.length === 0) {
@@ -97,17 +90,26 @@ export class RewardProcessor {
         }
 
         // look for the first node from the starting point that has proposed
-        // at least one block during the last hour
+        // at least one block during the last hour and for which the amount
+        // to be paid is greater than 0
         const blocksFromLastHour = await this.getBlocksFromLastHour();
 
         for (let n = 0; n < nodeList.length; n++) {
             const node = nodeList[nodeIndex]
-            if (blocksFromLastHour.some((block) => block.proposerAddress === node.dto.address)) {
-                return node;
+            const eligible = blocksFromLastHour.some((block) =>
+                block.proposerAddress === node.dto.address
+            );
+            if (eligible) {
+                Logger.info(`next eligible node: ${node.dto.virtualBlockchainId}`);
+                const amountInAtomics = await this.getAmountToPay(node);
+                if (amountInAtomics > 0) {
+                    await this.transferTokens(amountInAtomics, node.accountId);
+                    return;
+                }
             }
             nodeIndex = (nodeIndex + 1) % nodeList.length;
         }
-        return null;
+        Logger.error("no node meets the reward conditions");
     }
 
     async getNodeList() {
@@ -142,7 +144,7 @@ export class RewardProcessor {
         return paymentList.data.items[0].linkedAccountId;
     }
 
-    async payNode(node: ExtendedNode) {
+    async getAmountToPay(node: ExtendedNode) {
         const dueAmountInAtomics = await this.getDueAmount(node);
         const paidAmountInAtomics = await this.getPaidAmount(node);
         const amountInAtomics = dueAmountInAtomics - paidAmountInAtomics;
@@ -152,14 +154,12 @@ export class RewardProcessor {
 
         if (amountInAtomics < 0) {
             Logger.error("amount to be paid is negative");
-            return;
+            return 0;
         }
         if (amountInAtomics == 0) {
             Logger.warn("amount to be paid is zero");
-            return;
         }
-
-        await this.transferTokens(amountInAtomics, node.accountId);
+        return amountInAtomics;
     }
 
     async transferTokens(amountInAtomics: number, accountId: string) {
@@ -241,7 +241,7 @@ export class RewardProcessor {
             this.payer = {sk, pk, accountHash, accountId};
         }
         catch (error) {
-            Logger.error("unable to load the payer account information - is the key valid?")
+            Logger.error("unable to load the payer account information - is 'private_key' valid?")
             throw error;
         }
     }
