@@ -38,6 +38,8 @@ export class RewardProcessor {
     private payer: Payer;
 
     constructor(config: Config) {
+        Logger.info("RewardProcessor initialized with the following config:");
+        Logger.info(JSON.stringify(config, null, 2));
         this.config = config;
         this.provider = ProviderFactory.createInMemoryProviderWithExternalProvider(this.config.nodeUrl);
         httpClient.setApiBaseUrl(config.indexerUrl);
@@ -59,6 +61,8 @@ export class RewardProcessor {
     }
 
     async getNextNode() {
+        Logger.info("retrieving the next eligible node");
+
         // get the current list of validator nodes
         const nodeList = await this.getNodeList();
         if (nodeList.length === 0) {
@@ -222,16 +226,24 @@ export class RewardProcessor {
     }
 
     async loadPayer() {
-        const encoder = CryptoEncoderFactory.defaultStringSignatureEncoder();
-        const sk = await encoder.decodePrivateKey(this.config.privateKey);
-        const pk = await sk.getPublicKey();
-        const accountHash = Hash.from(
-            await this.provider.getAccountIdByPublicKey(pk)
-        );
-        const accountId = Utils.binaryToHexa(accountHash.toBytes());
-        Logger.info(`payer public key is ${Utils.binaryToHexa(await pk.getPublicKeyAsBytes())}`);
-        Logger.info(`payer account is ${accountId}`);
-        this.payer = { sk, pk, accountHash, accountId };
+        Logger.info("loading the payer account information");
+
+        try {
+            const encoder = CryptoEncoderFactory.defaultStringSignatureEncoder();
+            const sk = await encoder.decodePrivateKey(this.config.privateKey);
+            const pk = await sk.getPublicKey();
+            const accountHash = Hash.from(
+                await this.provider.getAccountIdByPublicKey(pk)
+            );
+            const accountId = Utils.binaryToHexa(accountHash.toBytes());
+            Logger.info(`payer public key is ${Utils.binaryToHexa(await pk.getPublicKeyAsBytes())}`);
+            Logger.info(`payer account is ${accountId}`);
+            this.payer = {sk, pk, accountHash, accountId};
+        }
+        catch (error) {
+            Logger.error("unable to load the payer account information - is the key valid?")
+            throw error;
+        }
     }
 
     async getPaidAmount(node: ExtendedNode) {
