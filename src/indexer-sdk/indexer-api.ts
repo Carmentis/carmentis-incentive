@@ -18,12 +18,14 @@ import type {
   AppControllerGetValidatorNodesParams,
   AppControllerGetVirtualBlockchainsParams,
   AppControllerGetVotingPowersParams,
+  AppControllerSearchParams,
   ApplicationListResponseDto,
   BlockListResponseDto,
   ChainResponseDto,
   GasPriceResponseDto,
   MicroblockListResponseDto,
   OrganizationListResponseDto,
+  SearchListResponseDto,
   ValidatorNodeListResponseDto,
   VirtualBlockchainListResponseDto,
   VotingPowerListResponseDto
@@ -126,6 +128,46 @@ export const getAppControllerGetGasPriceUrl = (params?: AppControllerGetGasPrice
 export const appControllerGetGasPrice = async (params?: AppControllerGetGasPriceParams, options?: RequestInit): Promise<appControllerGetGasPriceResponse> => {
 
   return customFetch<appControllerGetGasPriceResponse>(getAppControllerGetGasPriceUrl(params),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+export type appControllerSearchResponse200 = {
+  data: SearchListResponseDto
+  status: 200
+}
+
+export type appControllerSearchResponseSuccess = (appControllerSearchResponse200) & {
+  headers: Headers;
+};
+;
+
+export type appControllerSearchResponse = (appControllerSearchResponseSuccess)
+
+export const getAppControllerSearchUrl = (params: AppControllerSearchParams,) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : String(value))
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0 ? `/api/v1/search?${stringifiedParams}` : `/api/v1/search`
+}
+
+export const appControllerSearch = async (params: AppControllerSearchParams, options?: RequestInit): Promise<appControllerSearchResponse> => {
+
+  return customFetch<appControllerSearchResponse>(getAppControllerSearchUrl(params),
   {
     ...options,
     method: 'GET'

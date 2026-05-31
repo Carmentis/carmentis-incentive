@@ -12,5 +12,6 @@ export interface VirtualBlockchainDto {
   type: number;
   creationTimestamp: number;
   modificationTimestamp: number;
+  expirationTimestamp: number;
   lastMicroblockHash: string;
 }

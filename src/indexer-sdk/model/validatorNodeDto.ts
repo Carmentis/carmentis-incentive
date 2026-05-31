@@ -13,4 +13,5 @@ export interface ValidatorNodeDto {
   cometPublicKey: string;
   address: string;
   rpcEndpoint: string;
+  currentVotingPower: number;
 }

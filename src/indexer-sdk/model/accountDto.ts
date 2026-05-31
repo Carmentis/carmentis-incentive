@@ -11,6 +11,7 @@ import type { VestingLockDto } from './vestingLockDto';
 
 export interface AccountDto {
   id: string;
+  publicKey: string;
   height: number;
   balance: number;
   escrowLocks: EscrowLockDto[];

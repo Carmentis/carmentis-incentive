@@ -78,6 +78,82 @@
         ]
       }
     },
+    "/api/v1/search": {
+      "get": {
+        "operationId": "AppController_search",
+        "parameters": [
+          {
+            "name": "order",
+            "required": false,
+            "in": "query",
+            "description": "Sort order",
+            "schema": {
+              "default": "ASC",
+              "type": "string",
+              "enum": [
+                "ASC",
+                "DESC"
+              ]
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "description": "Limit number of results",
+            "schema": {
+              "example": 10,
+              "type": "number"
+            }
+          },
+          {
+            "name": "q",
+            "required": true,
+            "in": "query",
+            "description": "Query string",
+            "schema": {
+              "example": "123",
+              "type": "string"
+            }
+          },
+          {
+            "name": "type",
+            "required": false,
+            "in": "query",
+            "description": "Type of object on which the search should focus",
+            "schema": {
+              "default": "all",
+              "type": "string",
+              "enum": [
+                "all",
+                "account",
+                "application",
+                "block",
+                "microblock",
+                "organization",
+                "node",
+                "vb"
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SearchListResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "App"
+        ]
+      }
+    },
     "/api/v1/blocks": {
       "get": {
         "operationId": "AppController_getBlocks",
@@ -222,6 +298,7 @@
             "schema": {
               "type": "string",
               "enum": [
+                "height",
                 "blockHeight"
               ]
             }
@@ -309,6 +386,18 @@
             "schema": {
               "example": 10,
               "type": "number"
+            }
+          },
+          {
+            "name": "sort",
+            "required": false,
+            "in": "query",
+            "description": "Field on which the sort is applied",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "balance"
+              ]
             }
           },
           {
@@ -422,7 +511,8 @@
             "schema": {
               "type": "string",
               "enum": [
-                "height"
+                "height",
+                "timestamp"
               ]
             }
           },
@@ -791,6 +881,20 @@
             }
           },
           {
+            "name": "sort",
+            "required": false,
+            "in": "query",
+            "description": "Field on which the sort is applied",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "creationTimestamp",
+                "modificationTimestamp",
+                "expirationTimestamp"
+              ]
+            }
+          },
+          {
             "name": "vb_id",
             "required": false,
             "in": "query",
@@ -980,6 +1084,47 @@
           "max",
           "average",
           "microblocks"
+        ]
+      },
+      "SearchDto": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "string"
+          },
+          "id": {
+            "type": "string"
+          },
+          "matchedFieldName": {
+            "type": "string"
+          },
+          "matchedFieldValue": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "type",
+          "id",
+          "matchedFieldName",
+          "matchedFieldValue"
+        ]
+      },
+      "SearchListResponseDto": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SearchDto"
+            }
+          },
+          "hasMore": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "items",
+          "hasMore"
         ]
       },
       "BlockSignatureDto": {
@@ -1278,6 +1423,9 @@
           "id": {
             "type": "string"
           },
+          "publicKey": {
+            "type": "string"
+          },
           "height": {
             "type": "number"
           },
@@ -1305,6 +1453,7 @@
         },
         "required": [
           "id",
+          "publicKey",
           "height",
           "balance",
           "escrowLocks",
@@ -1509,6 +1658,9 @@
           },
           "rpcEndpoint": {
             "type": "string"
+          },
+          "currentVotingPower": {
+            "type": "number"
           }
         },
         "required": [
@@ -1517,7 +1669,8 @@
           "cometPublicKeyType",
           "cometPublicKey",
           "address",
-          "rpcEndpoint"
+          "rpcEndpoint",
+          "currentVotingPower"
         ]
       },
       "ValidatorNodeListResponseDto": {
@@ -1556,6 +1709,9 @@
           "modificationTimestamp": {
             "type": "number"
           },
+          "expirationTimestamp": {
+            "type": "number"
+          },
           "lastMicroblockHash": {
             "type": "string"
           }
@@ -1566,6 +1722,7 @@
           "type",
           "creationTimestamp",
           "modificationTimestamp",
+          "expirationTimestamp",
           "lastMicroblockHash"
         ]
       },

@@ -6,6 +6,7 @@
  * OpenAPI spec version: 1.0
  */
 import type { AppControllerGetAccountsOrder } from './appControllerGetAccountsOrder';
+import type { AppControllerGetAccountsSort } from './appControllerGetAccountsSort';
 
 export type AppControllerGetAccountsParams = {
 /**
@@ -16,6 +17,10 @@ order?: AppControllerGetAccountsOrder;
  * Limit number of results
  */
 limit?: number;
+/**
+ * Field on which the sort is applied
+ */
+sort?: AppControllerGetAccountsSort;
 /**
  * Account ID
  */

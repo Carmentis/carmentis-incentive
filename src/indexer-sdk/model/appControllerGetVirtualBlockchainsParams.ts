@@ -6,6 +6,7 @@
  * OpenAPI spec version: 1.0
  */
 import type { AppControllerGetVirtualBlockchainsOrder } from './appControllerGetVirtualBlockchainsOrder';
+import type { AppControllerGetVirtualBlockchainsSort } from './appControllerGetVirtualBlockchainsSort';
 
 export type AppControllerGetVirtualBlockchainsParams = {
 /**
@@ -16,6 +17,10 @@ order?: AppControllerGetVirtualBlockchainsOrder;
  * Limit number of results
  */
 limit?: number;
+/**
+ * Field on which the sort is applied
+ */
+sort?: AppControllerGetVirtualBlockchainsSort;
 /**
  * Virtual blockchain ID
  */

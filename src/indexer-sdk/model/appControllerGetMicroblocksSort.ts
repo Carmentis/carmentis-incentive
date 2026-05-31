@@ -10,5 +10,6 @@ export type AppControllerGetMicroblocksSort = typeof AppControllerGetMicroblocks
 
 
 export const AppControllerGetMicroblocksSort = {
+  height: 'height',
   blockHeight: 'blockHeight',
 } as const;

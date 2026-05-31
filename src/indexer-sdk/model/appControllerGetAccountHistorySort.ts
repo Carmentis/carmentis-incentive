@@ -11,4 +11,5 @@ export type AppControllerGetAccountHistorySort = typeof AppControllerGetAccountH
 
 export const AppControllerGetAccountHistorySort = {
   height: 'height',
+  timestamp: 'timestamp',
 } as const;
