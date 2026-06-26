@@ -1,0 +1,15 @@
+[payment]
+private_key = "SIG:SECP256K1:SK{f86ce9df7bcdf880a649fe2e177052fbe289226630d2dfbbac80f068ada6c5a9}"
+public_reference = "Carmentis incentive program: reward payment for node <NODE_ID>"
+start_date = "2026-06-25T00:00:00.000Z"
+period_in_seconds = 120
+dry_run = false
+
+[network]
+node_url = "http://localhost:26657"
+indexer_url = "http://localhost:3000"
+
+[node_pool]
+excluded_nodes = [
+    "0B22C1559CAE331BE26B01F718011C1B4AC5FCC2BEEA7108C61F5D649745F029"
+]

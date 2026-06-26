@@ -3,7 +3,6 @@ import * as Logger from "./Logger";
 import * as httpClient from "./indexer-sdk/http-client/http-client";
 import * as indexer from "./indexer-sdk/indexer-api";
 import {
-    BK_SENT_PAYMENT,
     ProviderFactory,
     CryptoEncoderFactory,
     PrivateSignatureKey,
@@ -14,15 +13,12 @@ import {
     Utils,
     CMTSToken,
 } from "@cmts-dev/carmentis-sdk-core";
-import { BlockDto, ValidatorNodeDto } from "./indexer-sdk/model";
-
-const REWARD_RATE_PER_YEAR = 0.10;
-const MS_IN_YEAR = 365 * 24 * 60 * 60 * 1000;
-const REWARD_RATE_PER_MS = REWARD_RATE_PER_YEAR / MS_IN_YEAR;
+import { ValidatorNodeDto } from "./indexer-sdk/model";
 
 type ExtendedNode = {
     dto: ValidatorNodeDto;
     accountId: string;
+    unpaidRewardInAtomics: number;
 }
 type Payer = {
     sk: PrivateSignatureKey,
@@ -34,8 +30,8 @@ type Payer = {
 export class RewardProcessor {
     private readonly config: Config;
     private readonly provider: Provider;
-    private now: number;
-    private payer: Payer;
+    private now = 0;
+    private payer: Payer | undefined;
 
     constructor(config: Config) {
         Logger.info("RewardProcessor initialized with the following config:");
@@ -45,10 +41,24 @@ export class RewardProcessor {
         httpClient.setApiBaseUrl(config.indexerUrl);
     }
 
-    async tick() {
+    static roundTimestampToHour(ts: number) {
+        const date = new Date(ts);
+        return Date.UTC(
+            date.getUTCFullYear(),
+            date.getUTCMonth(),
+            date.getUTCDate(),
+            date.getUTCHours(),
+        );
+    }
+
+    getPayerOrFail(): Payer {
         if (this.payer === undefined) {
             throw new Error("payer not initialized");
         }
+        return this.payer;
+    }
+
+    async tick() {
         Logger.info("starting new round");
         this.now = Date.now();
         await this.payNextNode();
@@ -57,59 +67,54 @@ export class RewardProcessor {
 
     async payNextNode() {
         // get the current list of validator nodes
-        const nodeList = await this.getNodeList();
+        const fullNodeList = await this.getNodeList();
+
+        // remove exlcuded nodes
+        const nodeList = fullNodeList.filter((node) =>
+            !this.config.excludedNodes.includes(
+                node.dto.virtualBlockchainId.toUpperCase()
+            )
+        );
+
         if (nodeList.length === 0) {
             Logger.error("empty list of validator nodes");
             return null;
         }
-        // normalize the list by sorting by VB ID
-        nodeList.sort((a, b) => {
-            return a.dto.virtualBlockchainId > b.dto.virtualBlockchainId ? 1 : -1;
-        });
 
-        // compute the starting point in the list
-        // (next node after the last paid node, or 0 if not found)
-        let nodeIndex: number;
-        const lastPaidAccountId = await this.getLastPaidAccountId();
+        // get the unpaid amount to date for each node
+        const payerAccountId = this.getPayerOrFail().accountId;
+        const startTs = new Date(this.config.startDate).getTime();
 
-        if (lastPaidAccountId === null) {
-            Logger.warn("no previous payment found");
-            nodeIndex = 0;
-        }
-        else {
-            const lastPaidNodeIndex = nodeList.findIndex((node) =>
-                node.accountId === lastPaidAccountId
-            );
-            if (lastPaidNodeIndex === -1) {
-                Logger.warn("last paid node not found in current list of validator nodes");
-                nodeIndex = 0;
-            }
-            else {
-                nodeIndex = (lastPaidNodeIndex + 1) % nodeList.length;
-            }
+        for (const node of nodeList) {
+            const nodeId = node.dto.virtualBlockchainId;
+            const rewards = await indexer.appControllerGetNodeReward({
+                node_id: nodeId,
+                payer_account_id: payerAccountId,
+                start_time: startTs,
+                end_time: this.now,
+            });
+            node.unpaidRewardInAtomics = Math.floor(rewards.data.unpaidRewardInAtomics);
         }
 
-        // look for the first node from the starting point that has proposed
-        // at least one block during the last hour and for which the amount
-        // to be paid is greater than 0
-        const blocksFromLastHour = await this.getBlocksFromLastHour();
-
-        for (let n = 0; n < nodeList.length; n++) {
-            const node = nodeList[nodeIndex]
-            const eligible = blocksFromLastHour.some((block) =>
-                block.proposerAddress === node.dto.address
-            );
-            if (eligible) {
-                Logger.info(`next eligible node: ${node.dto.virtualBlockchainId}`);
-                const amountInAtomics = await this.getAmountToPay(node);
-                if (amountInAtomics > 0) {
-                    await this.transferTokens(amountInAtomics, node.accountId);
-                    return;
-                }
-            }
-            nodeIndex = (nodeIndex + 1) % nodeList.length;
+        // sort this list by unpaid rewards, in descending order
+        nodeList.sort((a, b) => b.unpaidRewardInAtomics - a.unpaidRewardInAtomics);
+        Logger.info(`top 5 of unpaid rewards:`);
+        for (let i = 0; i < Math.min(5, nodeList.length); i++) {
+            Logger.info(`${nodeList[i].dto.virtualBlockchainId}: ${nodeList[i].unpaidRewardInAtomics} atomics`);
         }
-        Logger.error("no node meets the reward conditions");
+
+        // the next node is the first entry
+        const nextNode = nodeList[0];
+        const nextNodeId = nextNode.dto.virtualBlockchainId;
+
+        Logger.info(`next eligible node: ${nextNodeId}`);
+        const amountInAtomics = nextNode.unpaidRewardInAtomics;
+        if (amountInAtomics > 0) {
+            await this.transferTokens(amountInAtomics, nextNode.accountId, nextNodeId);
+            return;
+        }
+
+        Logger.error("no outstanding rewards to pay");
     }
 
     async getNodeList() {
@@ -122,7 +127,8 @@ export class RewardProcessor {
             if (organizations.data.items.length === 1) {
                 const extendedNode: ExtendedNode = {
                     dto: node,
-                    accountId: organizations.data.items[0].accountId
+                    accountId: organizations.data.items[0].accountId,
+                    unpaidRewardInAtomics: 0,
                 };
                 res.push(extendedNode);
             }
@@ -130,47 +136,18 @@ export class RewardProcessor {
         return res;
     }
 
-    async getLastPaidAccountId() {
-        const paymentList = await indexer.appControllerGetAccountHistory({
-            account_id: this.payer.accountId,
-            type: BK_SENT_PAYMENT,
-            sort: "height",
-            order: "DESC",
-            limit: 1,
-        });
-        if (paymentList.data.items.length == 0) {
-            return null;
-        }
-        return paymentList.data.items[0].linkedAccountId;
-    }
-
-    async getAmountToPay(node: ExtendedNode) {
-        const dueAmountInAtomics = await this.getDueAmount(node);
-        const paidAmountInAtomics = await this.getPaidAmount(node);
-        const amountInAtomics = dueAmountInAtomics - paidAmountInAtomics;
-
-        Logger.info(`due amount: ${dueAmountInAtomics} atomics`);
-        Logger.info(`already paid amount: ${paidAmountInAtomics} atomics`);
-
-        if (amountInAtomics < 0) {
-            Logger.error("amount to be paid is negative");
-            return 0;
-        }
-        if (amountInAtomics == 0) {
-            Logger.warn("amount to be paid is zero");
-        }
-        return amountInAtomics;
-    }
-
-    async transferTokens(amountInAtomics: number, accountId: string) {
+    async transferTokens(amountInAtomics: number, accountId: string, nodeId: string) {
         Logger.info(`sending ${amountInAtomics} atomics to account ${accountId}`);
 
-        const payerAccount = await this.provider.loadAccountVirtualBlockchain(this.payer.accountHash);
+        const payer = this.getPayerOrFail();
+        const payerAccount = await this.provider.loadAccountVirtualBlockchain(payer.accountHash);
         const tokenTransferMb = await payerAccount.createMicroblock();
+        const publicReference = this.config.publicReference.replace(/<NODE_ID>/, nodeId);
+
         tokenTransferMb.addSection({
             type: SectionType.ACCOUNT_TRANSFER,
             amount: amountInAtomics,
-            publicReference: this.config.publicReference,
+            publicReference,
             privateReference: '',
             account: Utils.binaryFromHexa(accountId)
         });
@@ -178,51 +155,17 @@ export class RewardProcessor {
         tokenTransferMb.setGasPrice(CMTSToken.createMilliToken(1));
         await tokenTransferMb.setGasAndSeal(
             this.provider,
-            this.payer.sk,
+            payer.sk,
             {
-                feesPayerAccount: this.payer.accountHash.toBytes()
+                feesPayerAccount: payer.accountHash.toBytes()
             }
         );
-        await this.provider.publishMicroblock(tokenTransferMb);
-    }
-
-    async getDueAmount(node: ExtendedNode) {
-        const response = await indexer.appControllerGetVotingPowers({
-            node_id: node.dto.virtualBlockchainId,
-            sort: "height",
-            order: "ASC",
-        });
-        const votingPowers = response.data.items;
-        let lastTs = new Date(this.config.startDate).getTime();
-        if(isNaN(lastTs)) {
-            throw new Error("invalid start date");
+        if (this.config.dryRun === true) {
+            Logger.info(`aborting because of 'dry_run' flag`);
+            Logger.info(`Built microblock: ${Utils.jsonPrettify(tokenTransferMb)}`);
+        } else {
+          await this.provider.publishMicroblock(tokenTransferMb);
         }
-        let votingPower = 0;
-        let dueInAtomics = 0;
-
-        // compute due amount updates at each voting power update
-        for (const vp of votingPowers) {
-            dueInAtomics += this.getDueAmountForPeriod(lastTs, vp.timestamp, votingPower);
-            lastTs = vp.timestamp;
-            votingPower = vp.votingPower;
-        }
-        // add due amount from the last voting power update to now
-        dueInAtomics += this.getDueAmountForPeriod(lastTs, this.now, votingPower);
-
-        return Math.round(dueInAtomics);
-    }
-
-    getDueAmountForPeriod(from: number, to: number, votingPower: number) {
-        const fromAsStr = new Date(from).toISOString();
-        const toAsStr = new Date(to).toISOString();
-        const delta = to - from;
-        if (delta < 0) {
-            Logger.warn(`inconsistent period from ${fromAsStr} to ${toAsStr}: due amount is 0`);
-            return 0;
-        }
-        const amount = delta * REWARD_RATE_PER_MS * votingPower;
-        Logger.info(`due amount from ${fromAsStr} to ${toAsStr}: ${amount} atomics`);
-        return amount;
     }
 
     async loadPayer() {
@@ -244,55 +187,5 @@ export class RewardProcessor {
             Logger.error("unable to load the payer account information - is 'private_key' valid?")
             throw error;
         }
-    }
-
-    async getPaidAmount(node: ExtendedNode) {
-        let minHeight = 0;
-        let hasMore = true;
-        let paidInAtomics = 0;
-
-        while (hasMore) {
-            const response = await indexer.appControllerGetAccountHistory({
-                account_id: this.payer.accountId,
-                linked_account_id: node.accountId,
-                type: BK_SENT_PAYMENT,
-                height_gte: minHeight,
-                sort: "height",
-                order: "ASC",
-            });
-            const items = response.data.items;
-            for (const item of items) {
-                paidInAtomics += item.amount;
-            }
-            if (items.length > 0) {
-                minHeight = items[items.length - 1].height + 1;
-            }
-            hasMore = response.data.hasMore;
-        }
-        return paidInAtomics;
-    }
-
-    async getBlocksFromLastHour() {
-        const oneHourAgo = this.now - 3600000;
-        const blockList: BlockDto[] = [];
-        let minHeight = 0;
-        let hasMore = true;
-
-        while (hasMore) {
-            const response = await indexer.appControllerGetBlocks({
-                height_gte: minHeight,
-                timestamp_gte: oneHourAgo,
-                timestamp_lte: this.now,
-                sort: "height",
-                order: "ASC",
-            });
-            const items = response.data.items;
-            blockList.push(...items);
-            if (items.length > 0) {
-                minHeight = items[items.length - 1].height + 1;
-            }
-            hasMore = response.data.hasMore;
-        }
-        return blockList;
     }
 }

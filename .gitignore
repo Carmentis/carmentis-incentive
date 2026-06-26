@@ -15,6 +15,9 @@ lerna-debug.log*
 # OS
 .DS_Store
 
+# Config
+config.toml
+
 # Tests
 coverage
 .nyc_output
@@ -45,10 +48,6 @@ coverage
 # temp directory
 .temp
 .tmp
-
-# data
-*.sqlite
-microblocks
 
 # debug scripts
 run.bat

@@ -7,7 +7,14 @@
         "parameters": [],
         "responses": {
           "200": {
-            "description": ""
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RootResponseDto"
+                }
+              }
+            }
           }
         },
         "tags": [
@@ -360,6 +367,105 @@
         ]
       }
     },
+    "/api/v1/microblock-proof": {
+      "get": {
+        "operationId": "AppController_getMicroblockProof",
+        "parameters": [
+          {
+            "name": "hash",
+            "required": true,
+            "in": "query",
+            "description": "Microblock hash",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MicroblockProofResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "App"
+        ]
+      }
+    },
+    "/api/v1/microblock-stats": {
+      "get": {
+        "operationId": "AppController_getMicroblockStats",
+        "parameters": [
+          {
+            "name": "vb_type",
+            "required": false,
+            "in": "query",
+            "description": "Limits the stats to a specific virtual blockchain type.",
+            "schema": {
+              "type": "number",
+              "enum": [
+                0,
+                1,
+                2,
+                3,
+                4,
+                5
+              ]
+            }
+          },
+          {
+            "name": "is_genesis",
+            "required": false,
+            "in": "query",
+            "description": "Limits the stats to either genesis or non-genesis microblocks.",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "timestamp_gte",
+            "required": false,
+            "in": "query",
+            "description": "Minimum timestamp in milliseconds (inclusive). Resolution is 1 hour.",
+            "schema": {
+              "example": 1780300800000,
+              "type": "number"
+            }
+          },
+          {
+            "name": "timestamp_lte",
+            "required": false,
+            "in": "query",
+            "description": "Maximum timestamp in milliseconds (inclusive). Resolution is 1 hour.",
+            "schema": {
+              "example": 1780315200000,
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MicroblockStatsResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "App"
+        ]
+      }
+    },
     "/api/v1/accounts": {
       "get": {
         "operationId": "AppController_getAccounts",
@@ -398,6 +504,16 @@
               "enum": [
                 "balance"
               ]
+            }
+          },
+          {
+            "name": "public_key",
+            "required": false,
+            "in": "query",
+            "description": "Public key of the account",
+            "schema": {
+              "example": "SIG:SECP256K1:PK{03ff351698a1b18d21dac31b7a9c77b09d9cfec11a649cf573f0aa1477a49aaa79}",
+              "type": "string"
             }
           },
           {
@@ -604,6 +720,37 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/AccountHistoryListResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "App"
+        ]
+      }
+    },
+    "/api/v1/account-proof": {
+      "get": {
+        "operationId": "AppController_getAccountProof",
+        "parameters": [
+          {
+            "name": "account_id",
+            "required": true,
+            "in": "query",
+            "description": "Account ID",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AccountProofResponseDto"
                 }
               }
             }
@@ -833,6 +980,15 @@
               "example": "C5F1A9EEA5451BC797DE6CAA8C17765B824E7F85",
               "type": "string"
             }
+          },
+          {
+            "name": "is_validator",
+            "required": false,
+            "in": "query",
+            "description": "Flag to include only validator nodes",
+            "schema": {
+              "type": "boolean"
+            }
           }
         ],
         "responses": {
@@ -842,6 +998,89 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/ValidatorNodeListResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "App"
+        ]
+      }
+    },
+    "/api/v1/validator-stats": {
+      "get": {
+        "operationId": "AppController_getValidatorStats",
+        "parameters": [
+          {
+            "name": "node_id",
+            "required": false,
+            "in": "query",
+            "description": "Node virtual blockchain ID",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "timestamp_gte",
+            "required": false,
+            "in": "query",
+            "description": "Minimum timestamp in milliseconds (inclusive). Resolution is 1 hour.",
+            "schema": {
+              "example": 1780300800000,
+              "type": "number"
+            }
+          },
+          {
+            "name": "timestamp_lte",
+            "required": false,
+            "in": "query",
+            "description": "Maximum timestamp in milliseconds (inclusive). Resolution is 1 hour.",
+            "schema": {
+              "example": 1780315200000,
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidatorStatsResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "App"
+        ]
+      }
+    },
+    "/api/v1/node-status": {
+      "get": {
+        "operationId": "AppController_getNodeStatus",
+        "parameters": [
+          {
+            "name": "node_id",
+            "required": true,
+            "in": "query",
+            "description": "Node virtual blockchain ID",
+            "schema": {
+              "example": "511d98d94eac50e6bd5df8dad285c90c309c55a57bdf9db8c57d0ec931c7c57a",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NodeStatusResponseDto"
                 }
               }
             }
@@ -999,6 +1238,66 @@
           "App"
         ]
       }
+    },
+    "/api/v1/node-reward": {
+      "get": {
+        "operationId": "AppController_getNodeReward",
+        "parameters": [
+          {
+            "name": "node_id",
+            "required": true,
+            "in": "query",
+            "description": "Node virtual blockchain ID",
+            "schema": {
+              "example": "511d98d94eac50e6bd5df8dad285c90c309c55a57bdf9db8c57d0ec931c7c57a",
+              "type": "string"
+            }
+          },
+          {
+            "name": "payer_account_id",
+            "required": true,
+            "in": "query",
+            "description": "Reward payer account ID",
+            "schema": {
+              "example": "c4807cb71556c183ad79880be6c2732ae8b82089bbb27845f4452f27222900bc",
+              "type": "string"
+            }
+          },
+          {
+            "name": "start_time",
+            "required": true,
+            "in": "query",
+            "description": "Start timestamp in milliseconds",
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "end_time",
+            "required": true,
+            "in": "query",
+            "description": "End timestamp in milliseconds",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NodeRewardResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "App"
+        ]
+      }
     }
   },
   "info": {
@@ -1018,6 +1317,29 @@
       }
     },
     "schemas": {
+      "RootResponseDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "swagger": {
+            "type": "string"
+          },
+          "openapi": {
+            "type": "string"
+          },
+          "currentNode": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "name",
+          "swagger",
+          "openapi",
+          "currentNode"
+        ]
+      },
       "ObjectCountDto": {
         "type": "object",
         "properties": {
@@ -1203,6 +1525,15 @@
           "consensusHash": {
             "type": "string"
           },
+          "appVbRadixHash": {
+            "type": "string"
+          },
+          "appTokenRadixHash": {
+            "type": "string"
+          },
+          "appStorageHash": {
+            "type": "string"
+          },
           "appHash": {
             "type": "string"
           },
@@ -1220,6 +1551,12 @@
             "items": {
               "$ref": "#/components/schemas/BlockSignatureDto"
             }
+          },
+          "microblocks": {
+            "type": "number"
+          },
+          "feesInAtomics": {
+            "type": "number"
           }
         },
         "required": [
@@ -1237,11 +1574,16 @@
           "validatorsHash",
           "nextValidatorsHash",
           "consensusHash",
+          "appVbRadixHash",
+          "appTokenRadixHash",
+          "appStorageHash",
           "appHash",
           "lastResultsHash",
           "evidenceHash",
           "proposerAddress",
-          "signatures"
+          "signatures",
+          "microblocks",
+          "feesInAtomics"
         ]
       },
       "BlockListResponseDto": {
@@ -1292,7 +1634,7 @@
           },
           "content": {
             "type": "string",
-            "description": "Returned only if include_content=true"
+            "description": "Base64 representation of the microblock content. Returned only if include_content was set to true."
           }
         },
         "required": [
@@ -1324,62 +1666,127 @@
           "hasMore"
         ]
       },
-      "EscrowLockDto": {
+      "ProofBlockDto": {
         "type": "object",
         "properties": {
-          "amount": {
+          "height": {
             "type": "number"
           },
-          "escrowIdentifier": {
+          "vbRadixHash": {
             "type": "string"
           },
-          "fundEmitterAccountId": {
+          "tokenRadixHash": {
             "type": "string"
           },
-          "transferAuthorizerAccountId": {
+          "storageHash": {
             "type": "string"
           },
-          "startTimestamp": {
-            "type": "number"
-          },
-          "durationDays": {
-            "type": "number"
+          "appHash": {
+            "type": "string"
           }
         },
         "required": [
-          "amount",
-          "escrowIdentifier",
-          "fundEmitterAccountId",
-          "transferAuthorizerAccountId",
-          "startTimestamp",
-          "durationDays"
+          "height",
+          "vbRadixHash",
+          "tokenRadixHash",
+          "storageHash",
+          "appHash"
         ]
       },
-      "VestingLockDto": {
+      "MicroblockProofMicroblockDto": {
         "type": "object",
         "properties": {
-          "amount": {
+          "virtualBlockchainId": {
+            "type": "string"
+          },
+          "height": {
             "type": "number"
           },
-          "initialVestedAmountInAtomics": {
+          "hash": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "virtualBlockchainId",
+          "height",
+          "hash"
+        ]
+      },
+      "MicroblockProofVirtualBlockchainDto": {
+        "type": "object",
+        "properties": {
+          "serializedState": {
+            "type": "string"
+          },
+          "merkleWitnesses": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "radixProof": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "serializedState",
+          "merkleWitnesses",
+          "radixProof"
+        ]
+      },
+      "MicroblockProofResponseDto": {
+        "type": "object",
+        "properties": {
+          "block": {
+            "$ref": "#/components/schemas/ProofBlockDto"
+          },
+          "microblock": {
+            "$ref": "#/components/schemas/MicroblockProofMicroblockDto"
+          },
+          "virtualBlockchain": {
+            "$ref": "#/components/schemas/MicroblockProofVirtualBlockchainDto"
+          }
+        },
+        "required": [
+          "block",
+          "microblock",
+          "virtualBlockchain"
+        ]
+      },
+      "MicroblockCountDto": {
+        "type": "object",
+        "properties": {
+          "vbType": {
             "type": "number"
           },
-          "cliffStartTimestamp": {
-            "type": "number"
+          "isGenesis": {
+            "type": "boolean"
           },
-          "cliffDurationDays": {
-            "type": "number"
-          },
-          "vestingDurationDays": {
+          "count": {
             "type": "number"
           }
         },
         "required": [
-          "amount",
-          "initialVestedAmountInAtomics",
-          "cliffStartTimestamp",
-          "cliffDurationDays",
-          "vestingDurationDays"
+          "vbType",
+          "isGenesis",
+          "count"
+        ]
+      },
+      "MicroblockStatsResponseDto": {
+        "type": "object",
+        "properties": {
+          "stats": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/MicroblockCountDto"
+            }
+          }
+        },
+        "required": [
+          "stats"
         ]
       },
       "StakingLockDto": {
@@ -1417,6 +1824,64 @@
           "plannedSlashingTimestamp"
         ]
       },
+      "VestingLockDto": {
+        "type": "object",
+        "properties": {
+          "amount": {
+            "type": "number"
+          },
+          "initialVestedAmountInAtomics": {
+            "type": "number"
+          },
+          "cliffStartTimestamp": {
+            "type": "number"
+          },
+          "cliffDurationDays": {
+            "type": "number"
+          },
+          "vestingDurationDays": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "amount",
+          "initialVestedAmountInAtomics",
+          "cliffStartTimestamp",
+          "cliffDurationDays",
+          "vestingDurationDays"
+        ]
+      },
+      "EscrowLockDto": {
+        "type": "object",
+        "properties": {
+          "amount": {
+            "type": "number"
+          },
+          "escrowIdentifier": {
+            "type": "string"
+          },
+          "fundEmitterAccountId": {
+            "type": "string"
+          },
+          "transferAuthorizerAccountId": {
+            "type": "string"
+          },
+          "startTimestamp": {
+            "type": "number"
+          },
+          "durationDays": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "amount",
+          "escrowIdentifier",
+          "fundEmitterAccountId",
+          "transferAuthorizerAccountId",
+          "startTimestamp",
+          "durationDays"
+        ]
+      },
       "AccountDto": {
         "type": "object",
         "properties": {
@@ -1432,10 +1897,22 @@
           "balance": {
             "type": "number"
           },
-          "escrowLocks": {
+          "spendable": {
+            "type": "number"
+          },
+          "lockedInStaking": {
+            "type": "number"
+          },
+          "lockedInVesting": {
+            "type": "number"
+          },
+          "lockedInEscrows": {
+            "type": "number"
+          },
+          "stakingLocks": {
             "type": "array",
             "items": {
-              "$ref": "#/components/schemas/EscrowLockDto"
+              "$ref": "#/components/schemas/StakingLockDto"
             }
           },
           "vestingLocks": {
@@ -1444,10 +1921,10 @@
               "$ref": "#/components/schemas/VestingLockDto"
             }
           },
-          "stakingLocks": {
+          "escrowLocks": {
             "type": "array",
             "items": {
-              "$ref": "#/components/schemas/StakingLockDto"
+              "$ref": "#/components/schemas/EscrowLockDto"
             }
           }
         },
@@ -1456,9 +1933,13 @@
           "publicKey",
           "height",
           "balance",
-          "escrowLocks",
+          "spendable",
+          "lockedInStaking",
+          "lockedInVesting",
+          "lockedInEscrows",
+          "stakingLocks",
           "vestingLocks",
-          "stakingLocks"
+          "escrowLocks"
         ]
       },
       "AccountListResponseDto": {
@@ -1501,7 +1982,8 @@
             "type": "number"
           },
           "chainReference": {
-            "type": "string"
+            "type": "string",
+            "description": "Base64 representation of the CBOR-encoded chain reference."
           },
           "publicReference": {
             "type": "string"
@@ -1538,6 +2020,21 @@
         "required": [
           "items",
           "hasMore"
+        ]
+      },
+      "AccountProofResponseDto": {
+        "type": "object",
+        "properties": {
+          "block": {
+            "$ref": "#/components/schemas/ProofBlockDto"
+          },
+          "account": {
+            "$ref": "#/components/schemas/MicroblockProofVirtualBlockchainDto"
+          }
+        },
+        "required": [
+          "block",
+          "account"
         ]
       },
       "OrganizationDto": {
@@ -1661,6 +2158,22 @@
           },
           "currentVotingPower": {
             "type": "number"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "UNKNOWN",
+              "OK",
+              "SYNC",
+              "DOWN",
+              "BAD"
+            ]
+          },
+          "statusTimestamp": {
+            "type": "number"
+          },
+          "moniker": {
+            "type": "string"
           }
         },
         "required": [
@@ -1670,7 +2183,10 @@
           "cometPublicKey",
           "address",
           "rpcEndpoint",
-          "currentVotingPower"
+          "currentVotingPower",
+          "status",
+          "statusTimestamp",
+          "moniker"
         ]
       },
       "ValidatorNodeListResponseDto": {
@@ -1689,6 +2205,81 @@
         "required": [
           "items",
           "hasMore"
+        ]
+      },
+      "ValidatorStatsCountDto": {
+        "type": "object",
+        "properties": {
+          "nodeId": {
+            "type": "string"
+          },
+          "proposedBlocks": {
+            "type": "number"
+          },
+          "signedBlocks": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "nodeId",
+          "proposedBlocks",
+          "signedBlocks"
+        ]
+      },
+      "ValidatorStatsResponseDto": {
+        "type": "object",
+        "properties": {
+          "stats": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ValidatorStatsCountDto"
+            }
+          }
+        },
+        "required": [
+          "stats"
+        ]
+      },
+      "NodeStatusResponseDto": {
+        "type": "object",
+        "properties": {
+          "nodeId": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "UNKNOWN",
+              "OK",
+              "SYNC",
+              "DOWN",
+              "BAD"
+            ]
+          },
+          "statusTimestamp": {
+            "type": "number"
+          },
+          "moniker": {
+            "type": "string"
+          },
+          "latency": {
+            "type": "number"
+          },
+          "txInMempool": {
+            "type": "number"
+          },
+          "height": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "nodeId",
+          "status",
+          "statusTimestamp",
+          "moniker",
+          "latency",
+          "txInMempool",
+          "height"
         ]
       },
       "VirtualBlockchainDto": {
@@ -1783,6 +2374,63 @@
         "required": [
           "items",
           "hasMore"
+        ]
+      },
+      "NodePeriodRewardDto": {
+        "type": "object",
+        "properties": {
+          "startTime": {
+            "type": "number"
+          },
+          "endTime": {
+            "type": "number"
+          },
+          "votingPower": {
+            "type": "number"
+          },
+          "uptimeHours": {
+            "type": "number"
+          },
+          "downtimeHours": {
+            "type": "number"
+          },
+          "rewardInAtomics": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "startTime",
+          "endTime",
+          "votingPower",
+          "uptimeHours",
+          "downtimeHours",
+          "rewardInAtomics"
+        ]
+      },
+      "NodeRewardResponseDto": {
+        "type": "object",
+        "properties": {
+          "accruedRewardInAtomics": {
+            "type": "number"
+          },
+          "paidRewardInAtomics": {
+            "type": "number"
+          },
+          "unpaidRewardInAtomics": {
+            "type": "number"
+          },
+          "periods": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/NodePeriodRewardDto"
+            }
+          }
+        },
+        "required": [
+          "accruedRewardInAtomics",
+          "paidRewardInAtomics",
+          "unpaidRewardInAtomics",
+          "periods"
         ]
       }
     }

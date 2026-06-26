@@ -4,4 +4,7 @@ export interface Config {
     privateKey: string,
     publicReference: string,
     startDate: string,
+    periodInSeconds: number,
+    dryRun: boolean,
+    excludedNodes: string[],
 }
