@@ -34,8 +34,9 @@ export class RewardProcessor {
     private payer: Payer | undefined;
 
     constructor(config: Config) {
-        Logger.info("RewardProcessor initialized with the following config:");
-        Logger.info(JSON.stringify(config, null, 2));
+        Logger.info("initializing RewardProcessor with the following config:");
+        const shownConfig = { ...config, privateKey: "**redacted**" };
+        Logger.info(JSON.stringify(shownConfig, null, 2));
         this.config = config;
         this.provider = ProviderFactory.createInMemoryProviderWithExternalProvider(this.config.nodeUrl);
         httpClient.setApiBaseUrl(config.indexerUrl);
