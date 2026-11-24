@@ -4,3 +4,4 @@ minimumReleaseAge: 0
 confirmModulesPurge: false
 allowBuilds:
   cbor-extract: true
+  esbuild: true
